@@ -11,9 +11,11 @@ import * as productsActions from '../../store/actions/products';
 const UserProductsScreen = (props) => {
     const userProducts = useSelector((state) => state.products.userProducts);
     const dispatch = useDispatch();
+
     const editProductHandler = (id) => {
         props.navigation.navigate('EditProduct', {productId: id});
     };
+
     const deleteHandler = (id) => {
         Alert.alert(
             'Are you sure?',
@@ -30,6 +32,7 @@ const UserProductsScreen = (props) => {
             ]
         );
     };
+
     return (
         <FlatList
             data={userProducts}
@@ -61,6 +64,7 @@ const UserProductsScreen = (props) => {
         />
     );
 };
+
 UserProductsScreen.navigationOptions = (navData) => {
     return {
         headerTitle: 'Your Products',

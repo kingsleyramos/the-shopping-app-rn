@@ -113,14 +113,13 @@ const EditProductScreen = (props) => {
                     )
                 );
             }
+            props.navigation.goBack();
         } catch (err) {
             setError(err);
         }
 
         // Wait for dispatch to finish, then setIsLoading to false
         setIsLoading(false);
-
-        props.navigation.goBack();
     }, [dispatch, prodId, formState]);
 
     // setParams in order for the function to be reachable outside of the component

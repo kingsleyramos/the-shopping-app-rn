@@ -2,7 +2,7 @@ import React, {useReducer, useEffect} from 'react';
 import {StyleSheet, Text, View, TextInput} from 'react-native';
 
 const INPUT_CHANGE = 'INPUT_CHANGE';
-const INPUT_BLUR = 'INPUT_BLUR';
+const INPUT_KEYPRESS = 'INPUT_KEYPRESS';
 
 const inputReducer = (state, action) => {
     switch (action.type) {
@@ -12,7 +12,7 @@ const inputReducer = (state, action) => {
                 value: action.value,
                 isValid: action.isValid,
             };
-        case INPUT_BLUR:
+        case INPUT_KEYPRESS:
             return {
                 ...state,
                 touched: true,
@@ -62,7 +62,7 @@ const Input = (props) => {
     };
 
     const lostFocusHandler = () => {
-        dispatch({type: INPUT_BLUR});
+        dispatch({type: INPUT_KEYPRESS});
     };
 
     return (
@@ -73,7 +73,7 @@ const Input = (props) => {
                 style={styles.input}
                 value={inputState.value}
                 onChangeText={textChangeHandler}
-                onBlur={lostFocusHandler}
+                onKeyPress={lostFocusHandler}
             />
             {!inputState.isValid && inputState.touched && (
                 <View style={styles.errorContainer}>

@@ -10,6 +10,7 @@ import ProductDetailScreen from '../screens/shop/ProductDetailScreen';
 import CartScreen from '../screens/shop/CartScreen';
 import OrdersScreen from '../screens/shop/OrdersScreen';
 import UserProductsScreen from '../screens/user/UserProductsScreen';
+import EditProductScreen from '../screens/user/EditProductScreen';
 import Colors from '../constants/Colors';
 
 const defaultNavOptions = {
@@ -65,32 +66,33 @@ const OrdersNavigator = createStackNavigator(
     }
 );
 
-// const AdminNavigator = createStackNavigator(
-//     {
-//         UserProducts: UserProductsScreen,
-//     },
-//     {
-//         navigationOptions: {
-//             // this will not effect the screen of the navigator, instead it will effect the navigator if its inside another navigator
-//             drawerIcon: (drawerConfig) => (
-//                 <Ionicons
-//                     name={
-//                         Platform.OS === 'android' ? 'md-create' : 'ios-create'
-//                     }
-//                     size={23}
-//                     color={drawerConfig.tintColor}
-//                 />
-//             ),
-//         },
-//         defaultNavigationOptions: defaultNavOptions,
-//     }
-// );
+const AdminNavigator = createStackNavigator(
+    {
+        UserProducts: UserProductsScreen,
+        EditProduct: EditProductScreen,
+    },
+    {
+        navigationOptions: {
+            // this will not effect the screen of the navigator, instead it will effect the navigator if its inside another navigator
+            drawerIcon: (drawerConfig) => (
+                <Ionicons
+                    name={
+                        Platform.OS === 'android' ? 'md-create' : 'ios-create'
+                    }
+                    size={23}
+                    color={drawerConfig.tintColor}
+                />
+            ),
+        },
+        defaultNavigationOptions: defaultNavOptions,
+    }
+);
 
 const ShopNavigator = createDrawerNavigator(
     {
         Products: ProductsNavigator,
         Orders: OrdersNavigator,
-        // Admin: AdminNavigator,
+        Admin: AdminNavigator,
     },
     {
         contentOptions: {

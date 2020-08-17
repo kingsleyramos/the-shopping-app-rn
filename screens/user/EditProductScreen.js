@@ -2,8 +2,6 @@ import React, {useState, useEffect, useCallback, useReducer} from 'react';
 import {
     View,
     ScrollView,
-    Text,
-    TextInput,
     StyleSheet,
     Platform,
     Alert,
@@ -27,7 +25,7 @@ const formReducer = (state, action) => {
         };
         const updatedValidities = {
             ...state.inputValidities,
-            [action.input]: action.value,
+            [action.input]: action.isValid,
         };
         let updatedFormIsValid = true;
         for (const key in updatedValidities) {

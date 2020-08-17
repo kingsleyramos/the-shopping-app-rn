@@ -6,6 +6,7 @@ import {
     Platform,
     Alert,
     KeyboardAvoidingView,
+    ActivityIndicator,
 } from 'react-native';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 import {useSelector, useDispatch} from 'react-redux';
@@ -13,6 +14,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import HeaderButton from '../../components/UI/HeaderButton';
 import * as productsActions from '../../store/actions/products';
 import Input from '../../components/UI/Input';
+import Colors from '../../constants/Colors';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
@@ -42,6 +44,9 @@ const formReducer = (state, action) => {
 };
 
 const EditProductScreen = (props) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState();
+
     const prodId = props.navigation.getParam('productId'); // this paramter will not be set if a new item
     const editedProduct = useSelector((
         state // will return a
@@ -66,10 +71,13 @@ const EditProductScreen = (props) => {
         formIsValid: editedProduct ? true : false,
     });
 
-    const submitHandler = useCallback(() => {
+    const submitHandler = useCallback(async () => {
         // will make sure this component isn't recreated
         // and lead to an infinite loop
-
+        console.log(formState.inputValidities.title);
+        console.log(formState.inputValidities.imageUrl);
+        console.log(formState.inputValidities.description);
+        console.log(formState.inputValidities.price);
         if (!formState.formIsValid) {
             Alert.alert(
                 'Wrong Input!',
@@ -79,32 +87,46 @@ const EditProductScreen = (props) => {
             return;
         }
 
-        if (editedProduct) {
-            // this this exists, update product
-            dispatch(
-                productsActions.updateProduct(
-                    prodId,
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl
-                )
-            );
-        } else {
-            dispatch(
-                productsActions.createProduct(
-                    formState.inputValues.title,
-                    formState.inputValues.description,
-                    formState.inputValues.imageUrl,
-                    +formState.inputValues.price // + will convert to a string
-                )
-            );
+        // Set loading
+        setIsLoading(true);
+        setError(false);
+
+        // wrap dispatch and catch any errors
+        try {
+            if (editedProduct) {
+                // this this exists, update product
+                await dispatch(
+                    productsActions.updateProduct(
+                        prodId,
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl
+                    )
+                );
+            } else {
+                await dispatch(
+                    productsActions.createProduct(
+                        formState.inputValues.title,
+                        formState.inputValues.description,
+                        formState.inputValues.imageUrl,
+                        +formState.inputValues.price // + will convert to a string
+                    )
+                );
+            }
+        } catch (err) {
+            setError(err);
         }
+
+        // Wait for dispatch to finish, then setIsLoading to false
+        setIsLoading(false);
+
         props.navigation.goBack();
     }, [dispatch, prodId, formState]);
 
+    // setParams in order for the function to be reachable outside of the component
     useEffect(() => {
+        // place inside effect so component wont reload if props change.
         props.navigation.setParams({submit: submitHandler});
-        // setParams in order for the function to be reachable outside of the component
     }, [submitHandler]);
 
     // input validator
@@ -119,6 +141,15 @@ const EditProductScreen = (props) => {
         },
         [dispatchFormState]
     );
+
+    // Check if loading
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size='large' color={Colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <KeyboardAvoidingView
@@ -218,6 +249,11 @@ EditProductScreen.navigationOptions = (navData) => {
 const styles = StyleSheet.create({
     form: {
         margin: 20,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

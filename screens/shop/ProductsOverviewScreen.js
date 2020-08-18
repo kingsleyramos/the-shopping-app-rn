@@ -19,19 +19,21 @@ import Colors from '../../constants/Colors';
 
 const ProductsOverviewScreen = (props) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState();
     const products = useSelector((state) => state.products.availableProducts);
     const dispatch = useDispatch();
 
     const loadProducts = useCallback(async () => {
         setError(null);
-        setIsLoading(true);
+        // will refresh if on pull down
+        setIsRefreshing(true);
         try {
             await dispatch(productsActions.fetchProducts());
         } catch (err) {
             setError(err.message);
         }
-        setIsLoading(false);
+        setIsRefreshing(false);
     }, [dispatch, setIsLoading, setError]);
 
     // this will re-render the component when the loads
@@ -47,9 +49,13 @@ const ProductsOverviewScreen = (props) => {
         };
     }, [loadProducts]);
 
-    // useEffect(() => {
-    //     loadProducts();
-    // }, [dispatch, loadProducts]);
+    // will setIsLoading only on first load.
+    useEffect(() => {
+        setIsLoading(true);
+        loadProducts().then(() => {
+            setIsLoading(false);
+        });
+    }, [dispatch, loadProducts]);
 
     const selectItemHandler = (id, title) => {
         props.navigation.navigate('ProductDetail', {
@@ -90,6 +96,8 @@ const ProductsOverviewScreen = (props) => {
 
     return (
         <FlatList
+            onRefresh={loadProducts}
+            refreshing={isRefreshing}
             data={products}
             keyExtractor={(item) => item.id}
             renderItem={(itemData) => (

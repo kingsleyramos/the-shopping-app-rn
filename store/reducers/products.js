@@ -8,33 +8,21 @@ import {
 import Product from '../../models/product';
 
 const initialState = {
-    availableProducts: PRODUCTS,
-    userProducts: PRODUCTS.filter((prod) => prod.ownerId === 'u1'),
+    availableProducts: [],
+    userProducts: [],
 };
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case DELETE_PRODUCT:
-            return {
-                ...state,
-                userProducts: state.userProducts.filter(
-                    (product) => product.id !== action.pid
-                ),
-                availableProducts: state.availableProducts.filter(
-                    (product) => product.id !== action.pid
-                ),
-            };
         case SET_PRODUCTS:
             return {
                 availableProducts: action.products,
-                userProducts: action.products.filter(
-                    (prod) => prod.ownerId === 'u1'
-                ),
+                userProducts: action.userProducts,
             };
         case CREATE_PRODUCT:
             const newProduct = new Product(
                 action.productData.id,
-                'u1',
+                action.productData.ownerId,
                 action.productData.title,
                 action.productData.imageUrl,
                 action.productData.description,
@@ -68,6 +56,16 @@ export default (state = initialState, action) => {
                 ...state,
                 availableProducts: updatedAvailableProducts,
                 userProducts: updatedUserProducts,
+            };
+        case DELETE_PRODUCT:
+            return {
+                ...state,
+                userProducts: state.userProducts.filter(
+                    (product) => product.id !== action.pid
+                ),
+                availableProducts: state.availableProducts.filter(
+                    (product) => product.id !== action.pid
+                ),
             };
     }
     return state;

@@ -48,9 +48,9 @@ const EditProductScreen = (props) => {
     const [error, setError] = useState();
 
     const prodId = props.navigation.getParam('productId'); // this paramter will not be set if a new item
-    const editedProduct = useSelector((
-        state // will return a
-    ) => state.products.userProducts.find((prod) => prod.id === prodId)); // will return true if product exist as a user product
+    const editedProduct = useSelector((state) =>
+        state.products.userProducts.find((prod) => prod.id === prodId)
+    ); // will return true if product exist as a user product
     const dispatch = useDispatch();
 
     const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -71,6 +71,12 @@ const EditProductScreen = (props) => {
         formIsValid: editedProduct ? true : false,
     });
 
+    useEffect(() => {
+        if (error) {
+            Alert.alert('An error occurred!', error, [{text: 'Okay'}]);
+        }
+    }, [error]);
+
     const submitHandler = useCallback(async () => {
         // will make sure this component isn't recreated
         // and lead to an infinite loop
@@ -80,17 +86,15 @@ const EditProductScreen = (props) => {
         console.log(formState.inputValidities.price);
         if (!formState.formIsValid) {
             Alert.alert(
-                'Wrong Input!',
+                'Wrong input!',
                 'Please check the errors in the form.',
                 [{text: 'Okay'}]
             );
             return;
         }
-
         // Set loading
+        setError(null);
         setIsLoading(true);
-        setError(false);
-
         // wrap dispatch and catch any errors
         try {
             if (editedProduct) {
@@ -115,7 +119,7 @@ const EditProductScreen = (props) => {
             }
             props.navigation.goBack();
         } catch (err) {
-            setError(err);
+            setError(err.message);
         }
 
         // Wait for dispatch to finish, then setIsLoading to false
@@ -174,29 +178,29 @@ const EditProductScreen = (props) => {
                     />
                     <Input
                         id='imageUrl'
-                        label='Image URL'
+                        label='Image Url'
                         errorText='Please enter a valid image URL!'
                         keyboardType='default'
                         returnKeyType='next'
+                        // onInputChange={inputChangeHandler.bind(this, 'imageUrl')}
+                        onInputChange={inputChangeHandler}
                         initialValue={
                             editedProduct ? editedProduct.imageUrl : ''
                         }
                         initiallyValid={!!editedProduct}
                         required
-                        // onInputChange={inputChangeHandler.bind(this, 'imageUrl')}
-                        onInputChange={inputChangeHandler}
                     />
                     {editedProduct ? null : (
                         <Input
                             id='price'
                             label='Price'
-                            errorText='Please enter a valid Price!'
+                            errorText='Please enter a valid price!'
                             keyboardType='decimal-pad'
                             returnKeyType='next'
-                            required
-                            min={0.01}
                             // onInputChange={inputChangeHandler.bind(this, 'price')}
                             onInputChange={inputChangeHandler}
+                            required
+                            min={0.01}
                         />
                     )}
                     <Input

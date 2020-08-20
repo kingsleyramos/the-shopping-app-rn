@@ -4,6 +4,7 @@ import {StyleSheet, Text, View, TextInput} from 'react-native';
 const INPUT_CHANGE = 'INPUT_CHANGE';
 const INPUT_KEYPRESS = 'INPUT_KEYPRESS';
 
+// store value, the validity, and if touched in state
 const inputReducer = (state, action) => {
     switch (action.type) {
         case INPUT_CHANGE:
@@ -15,7 +16,7 @@ const inputReducer = (state, action) => {
         case INPUT_KEYPRESS:
             return {
                 ...state,
-                touched: true,
+                touched: true, // set to true if field has been touched at least once
             };
         default:
             return state;

@@ -6,7 +6,8 @@ export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
 export const fetchProducts = () => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
         try {
             const response = await fetch(
                 'https://the-shopping-app-rn.firebaseio.com/products.json'
@@ -23,7 +24,7 @@ export const fetchProducts = () => {
                 loadedProducts.push(
                     new Product(
                         key,
-                        'u1',
+                        resData[key].ownerId,
                         resData[key].title,
                         resData[key].imageUrl,
                         resData[key].description,
@@ -32,7 +33,13 @@ export const fetchProducts = () => {
                 );
             }
 
-            dispatch({type: SET_PRODUCTS, products: loadedProducts});
+            dispatch({
+                type: SET_PRODUCTS,
+                products: loadedProducts,
+                userProducts: loadedProducts.filter(
+                    (prod) => prod.ownerId === userId
+                ),
+            });
         } catch (err) {
             console.log(error);
         }
@@ -40,31 +47,33 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = (productId) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const token = getState().auth.token;
         const response = await fetch(
-            `https://the-shopping-app-rn.firebaseio.com/products/${productId}.json`,
+            `https://the-shopping-app-rn.firebaseio.com/products/${productId}.json?auth=${token}`,
             {
                 method: 'DELETE',
             }
         );
 
         if (!response.ok) {
-            console.log(response);
-            return new Error('Something went Wrong');
+            throw new Error('Something went Wrong');
         }
-
         dispatch({type: DELETE_PRODUCT, pid: productId});
     };
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
         // dispatch used for redux-thunk if the action returned is a function
         // you can now run any async code // check redux and redux-thunk docs
 
+        const token = getState().auth.token;
+        const userId = getState().auth.userId;
+
         // This will do a post request, which will require  a second argument
         const response = await fetch(
-            'https://the-shopping-app-rn.firebaseio.com/products.json',
+            `https://the-shopping-app-rn.firebaseio.com/products.json?auth=${token}`,
             {
                 // .json is a firebase thing
                 method: 'POST',
@@ -76,6 +85,7 @@ export const createProduct = (title, description, imageUrl, price) => {
                     description,
                     imageUrl,
                     price,
+                    ownerId: userId,
                 }),
             }
         );
@@ -90,15 +100,18 @@ export const createProduct = (title, description, imageUrl, price) => {
                 description,
                 imageUrl,
                 price,
+                ownerId: userId,
             },
         });
     };
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        // getState can help with getting state from the Redux Store
+        const token = getState().auth.token;
         const response = await fetch(
-            `https://the-shopping-app-rn.firebaseio.com/products/${id}.json`,
+            `https://the-shopping-app-rn.firebaseio.com/products/${id}.json?auth=${token}`,
             {
                 method: 'PATCH',
                 headers: {
@@ -113,7 +126,6 @@ export const updateProduct = (id, title, description, imageUrl) => {
         );
 
         if (!response.ok) {
-            console.log(response);
             return new Error('Something went Wrong');
         }
 
